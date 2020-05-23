@@ -1,24 +1,45 @@
+import colorama
+from colorama import Fore, Style, Back
 
+# dictionary of possibles other numbers than original
 dict_possible = {1: (7,), 2: (6,), 3: (9,), 4: (), 5: (9, 6), 6: (5, 8), 7: (1,), 8: (0, 6, 9),
                  9: (3, 5, 8), 0: (8,)}
 
-num_0_val = [' ', '_', ' ', '|', ' ', '|', '|', '_', '|']
-num_1_val = [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', '|']
-num_2_val = [' ', '_', ' ', ' ', '_', '|', '|', '_', ' ']
-num_3_val = [' ', '_', ' ', ' ', '_', '|', ' ', '_', '|']
-num_4_val = [' ', ' ', ' ', '|', '_', '|', ' ', ' ', '|']
-num_5_val = [' ', '_', ' ', '|', '_', ' ', ' ', '_', '|']
-num_6_val = [' ', '_', ' ', '|', '_', ' ', '|', '_', '|']
-num_7_val = [' ', '_', ' ', ' ', ' ', '|', ' ', ' ', '|']
-num_8_val = [' ', '_', ' ', '|', '_', '|', '|', '_', '|']
-num_9_val = [' ', '_', ' ', '|', '_', '|', ' ', '_', '|']
+# validated numbers when scanned line by line from example
+# 0 from scanner is:
+#
+#  _
+# | |
+# |_|
+# so num_0_val = [' ', '_', ' ', '|', ' ', '|', '|', '_', '|'] is a representation of 0
+num_0_val = [' ', '_', ' ', '|', ' ', '|', '|', '_', '|']  # 0
+num_1_val = [' ', ' ', ' ', ' ', ' ', '|', ' ', ' ', '|']  # 1
+num_2_val = [' ', '_', ' ', ' ', '_', '|', '|', '_', ' ']  # 2
+num_3_val = [' ', '_', ' ', ' ', '_', '|', ' ', '_', '|']  # 3
+num_4_val = [' ', ' ', ' ', '|', '_', '|', ' ', ' ', '|']  # 4
+num_5_val = [' ', '_', ' ', '|', '_', ' ', ' ', '_', '|']  # 5
+num_6_val = [' ', '_', ' ', '|', '_', ' ', '|', '_', '|']  # 6
+num_7_val = [' ', '_', ' ', ' ', ' ', '|', ' ', ' ', '|']  # 7
+num_8_val = [' ', '_', ' ', '|', '_', '|', '|', '_', '|']  # 8
+num_9_val = [' ', '_', ' ', '|', '_', '|', ' ', '_', '|']  # 9
 num_val_list = [num_0_val, num_1_val, num_2_val, num_3_val, num_4_val,
                 num_5_val, num_6_val, num_7_val, num_8_val, num_9_val]
 
-numbers = '1234567890'
 
+def check_account(account_given: str):
+    """Simple function which checks if given account is valid
 
-def check_account(account_given):
+    Arguments:
+        account_given (str): str form of digit version of account
+
+    Returns:
+        '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)
+            - account is valid
+        '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTRED_EX, 'ERR', Style.RESET_ALL)
+            - account is not valid
+        '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTYELLOW_EX, 'ILL', Style.RESET_ALL)
+            - there are some additional or missed lines in code from scanner
+    """
     x = account_given
     j = 9
     checksum = 0
@@ -27,30 +48,40 @@ def check_account(account_given):
             checksum += j*int(_)
             j -= 1
         if checksum % 11 == 0:
-            return ' VALID'
+            return '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)
         else:
-            return ' ERR'
+            return '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTRED_EX, 'ERR', Style.RESET_ALL)
     except ValueError:
-        return ' ILL'
+        return '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTYELLOW_EX, 'ILL', Style.RESET_ALL)
 
 
-def check_possibilities(checking_account):
+def check_possibilities(account_nr_to_check: str):
+    """Checking other possibilities if scanned data is not valid (ERR or ILL).
+
+    Arguments:
+        account_nr_to_check (str): string version of account
+
+    Returns:
+        lists: other valid possibilities of account number
+    """
     others = []
-    if check_account(checking_account) == ' ERR':
+    if check_account(account_nr_to_check) == '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTRED_EX, 'ERR', Style.RESET_ALL):
         i = 0
         while i < 10:
-            for char in check:
-                for _ in numbers:
+            for char in account_nr_to_check:
+                for _ in '1234567890':
                     if int(_) in dict_possible.get(int(char)):
                         if i == 0:
-                            other = _ + check[i+1:]
+                            other = _ + account_nr_to_check[i + 1:]
                             valid = check_account(other)
-                            if valid == ' VALID' and other not in others:
+                            if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
+                                    and other not in others:
                                 others.append(other)
                         if 1 <= i < 9:
-                            other = check[:i] + _ + check[i+1:]
+                            other = account_nr_to_check[:i] + _ + account_nr_to_check[i + 1:]
                             valid = check_account(other)
-                            if valid == ' VALID' and other not in others:
+                            if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
+                                    and other not in others:
                                 others.append(other)
                         else:
                             pass
@@ -60,7 +91,20 @@ def check_possibilities(checking_account):
     return others
 
 
-def lines_on_numbers(given_account, valid_list_of_numbers=num_val_list):
+def lines_on_numbers(given_example: str, valid_list_of_numbers=None):
+    """Changing tuple of lists with characters into readable form of account number.
+
+    Arguments:
+        given_example (str): data from scanner
+        valid_list_of_numbers (list): list of valid numbers build from sequences of characters which are needed for each
+                                      character
+
+    Returns:
+        str: account number in readable simple form
+    """
+    given_account = reading(given_example)
+    if valid_list_of_numbers is None:
+        valid_list_of_numbers = num_val_list
     account_checked = ''
     for num_ac in given_account:
         if num_ac in valid_list_of_numbers:
@@ -72,7 +116,15 @@ def lines_on_numbers(given_account, valid_list_of_numbers=num_val_list):
     return account_checked
 
 
-def reading(given_example):
+def reading(given_example: str):
+    """Returns a lists (with 9 elements) (in one tuple) of characters of each number in scanned data.
+
+    Arguments:
+        given_example (str): data from scanner
+
+    Returns:
+        tuple with 9 elements - each element is a list with 9 characters taken from data after scanning.
+    """
     num_1 = []
     num_2 = []
     num_3 = []
@@ -110,20 +162,28 @@ def reading(given_example):
             i += 1
     return final_account
 
-#sdffg
+
+def printing_details(account_nr: str):
+    """Simple function needed to print all data about account in one step"""
+
+    statement = 'Data from scanner: -----------{}\nData status: -----------------{}\nOther possibilities if needed:{}'.format(
+        account_nr, check_account(account_nr), check_possibilities(account_nr))
+    print(statement)
+
 
 example = '''\
                            
- _     _  _  _  _  _  _    
-| || || || || || || ||_   |
-|_||_||_||_||_||_||_| _|  |'''
+ _  _  _  _  _  _  _  _  _ 
+|_||_||_||_||_||_||_||_||_|
+|_||_||_||_||_||_||_||_||_|'''
 
 
-account = reading(example)
-print(lines_on_numbers(account, num_val_list))
+account = lines_on_numbers(example)
+print(account)
+printing_details(account)
+# print(lines_on_numbers(account, num_val_list))
 
-print(check_account('490068715'))
 
-check = '0?0000051'
-
-print(check_possibilities(check))
+# checking_account = '666666666'
+#
+# print(check_possibilities(checking_account))
