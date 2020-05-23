@@ -54,7 +54,7 @@ def check_account(account_given: str):
         return '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTYELLOW_EX, 'ILL', Style.RESET_ALL)
 
 
-def check_possibilities(account_nr_to_check: str):
+def check_possibilities(account_nr_to_check: str):  # TODO: actualize the docstring (returns) and ? problems
     """Checking other possibilities if scanned data is not valid (ERR or ILL).
 
     Arguments:
@@ -76,18 +76,23 @@ def check_possibilities(account_nr_to_check: str):
                             if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
                                     and other not in others:
                                 others.append(other)
-                        if 1 <= i < 9:
+                        elif 1 <= i < 9:
                             other = account_nr_to_check[:i] + _ + account_nr_to_check[i + 1:]
                             valid = check_account(other)
                             if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
                                     and other not in others:
                                 others.append(other)
-                        else:
-                            pass
+                    else:  # TODO: tutaj trzeba dodać validację źle odczytanego znaku, który daje ?
+                        pass
                 i += 1
     else:
         print('Here you have to add sth to deal with ?')
-    return others
+    if len(others) == 1:
+        return 'Account nr: {}'.format(others[0])
+    elif len(others) > 1:
+        return 'AMB {}'.format(others)
+    else:
+        return 'No other possibilities'
 
 
 def lines_on_numbers(given_example: str, valid_list_of_numbers=None):
@@ -105,6 +110,7 @@ def lines_on_numbers(given_example: str, valid_list_of_numbers=None):
     if valid_list_of_numbers is None:
         valid_list_of_numbers = num_val_list
     account_checked = ''
+    invalid_char = []
     for num_ac in given_account:
         if num_ac in valid_list_of_numbers:
             for num_val in valid_list_of_numbers:
@@ -112,7 +118,9 @@ def lines_on_numbers(given_example: str, valid_list_of_numbers=None):
                     account_checked += str(valid_list_of_numbers.index(num_val))
         else:
             account_checked += '?'
-    return account_checked
+            invalid_char += num_ac
+    # TODO: w tym miejscu trzeba dopisać część, która zapamięta fragment, który był źle odczytany
+    return account_checked, invalid_char
 
 
 def reading(given_example: str):
@@ -165,24 +173,36 @@ def reading(given_example: str):
 def printing_details(account_nr: str):
     """Simple function needed to print all data about account in one step"""
 
-    statement = 'Data from scanner: -----------{}\nData status: -----------------{}\nOther possibilities if needed:{}'\
-        .format(account_nr, check_account(account_nr), check_possibilities(account_nr))
+    statement = 'Data from scanner: {}\nData status: {}\nOther possibilities: {}'.format(
+        account_nr, check_account(account_nr), check_possibilities(account_nr))
     print(statement)
 
 
 example = '''\
                            
- _  _  _  _  _  _  _  _  _ 
-|_||_||_||_||_||_||_||_||_|
-|_||_||_||_||_||_||_||_||_|'''
+    _  _     _  _  _  _  _ 
+ _| _| _||_||_ |_   ||_||_|
+  ||_  _|  | _||_|  ||_| _|'''
 
 
 if __name__ == '__main__':
     account = lines_on_numbers(example)
+    cos_tam = lines_on_numbers(example)
     print(account)
-    printing_details(account)
+    printing_details(account[0])
     # print(lines_on_numbers(account, num_val_list))
 
     # checking_account = '666666666'
     #
     # print(check_possibilities(checking_account))
+
+i = 0  # TODO: z tego musisz wykombinować jak zrobić coś takiego, że jak się dwa tylko jeden znak różni - daje jako możliwość
+x = 0
+while i < 10:
+    print(x)
+    for char in num_val_list[x]:
+        print(char, end='')
+    x += 1
+    print('***')
+    i += 1
+
