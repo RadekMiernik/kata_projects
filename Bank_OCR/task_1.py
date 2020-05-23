@@ -1,4 +1,3 @@
-import colorama
 from colorama import Fore, Style, Back
 
 # dictionary of possibles other numbers than original
@@ -166,8 +165,8 @@ def reading(given_example: str):
 def printing_details(account_nr: str):
     """Simple function needed to print all data about account in one step"""
 
-    statement = 'Data from scanner: -----------{}\nData status: -----------------{}\nOther possibilities if needed:{}'.format(
-        account_nr, check_account(account_nr), check_possibilities(account_nr))
+    statement = 'Data from scanner: -----------{}\nData status: -----------------{}\nOther possibilities if needed:{}'\
+        .format(account_nr, check_account(account_nr), check_possibilities(account_nr))
     print(statement)
 
 
@@ -178,12 +177,12 @@ example = '''\
 |_||_||_||_||_||_||_||_||_|'''
 
 
-account = lines_on_numbers(example)
-print(account)
-printing_details(account)
-# print(lines_on_numbers(account, num_val_list))
+if __name__ == '__main__':
+    account = lines_on_numbers(example)
+    print(account)
+    printing_details(account)
+    # print(lines_on_numbers(account, num_val_list))
 
-
-# checking_account = '666666666'
-#
-# print(check_possibilities(checking_account))
+    # checking_account = '666666666'
+    #
+    # print(check_possibilities(checking_account))
