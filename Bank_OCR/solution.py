@@ -64,30 +64,42 @@ def check_possibilities(account_nr_to_check: str):  # TODO: actualize the docstr
         lists: other valid possibilities of account number
     """
     others = []
-    if check_account(account_nr_to_check) == '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTRED_EX, 'ERR', Style.RESET_ALL) or \
-            check_account(account_nr_to_check) == '{}{}{}{}'.format(
+    if check_account(account_nr_to_check) == '{}{}{}{}'.format(Fore.BLACK, Back.LIGHTRED_EX, 'ERR', Style.RESET_ALL)\
+            or check_account(account_nr_to_check) == '{}{}{}{}'.format(
             Fore.BLACK, Back.LIGHTYELLOW_EX, 'ILL', Style.RESET_ALL):
         i = 0
-        while i < 10:
-            for char in account_nr_to_check:
-                for _ in '1234567890':
-                    try:
-                        if int(_) in dict_possible.get(int(char)):
-                            if i == 0:
-                                other = _ + account_nr_to_check[i + 1:]
-                                valid = check_account(other)
-                                if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
-                                        and other not in others:
-                                    others.append(other)
-                            elif 1 <= i < 9:
-                                other = account_nr_to_check[:i] + _ + account_nr_to_check[i + 1:]
-                                valid = check_account(other)
-                                if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL)\
-                                        and other not in others:
-                                    others.append(other)
-                    except ValueError:  # TODO: tutaj trzeba dodać validację źle odczytanego znaku, który daje ?
-                        pass
-                i += 1
+        list_of_others = []
+        if '?' in account_nr_to_check:
+            other_options = check_possible_numbers(account, num_val_list)
+            for _ in other_options:
+                list_of_others.append(account_nr_to_check.replace('?', str(_), 1))
+        if len(list_of_others) < 1:
+            while i < 10:
+                for char in account_nr_to_check:
+                    for _ in '1234567890':
+                        try:
+                            if int(_) in dict_possible.get(int(char)):
+                                if i == 0:
+                                    other = _ + account_nr_to_check[i + 1:]
+                                    valid = check_account(other)
+                                    if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX,
+                                                                  'VALID', Style.RESET_ALL) and other not in others:
+                                        others.append(other)
+                                elif 1 <= i < 9:
+                                    other = account_nr_to_check[:i] + _ + account_nr_to_check[i + 1:]
+                                    valid = check_account(other)
+                                    if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX,
+                                                                  'VALID', Style.RESET_ALL) and other not in others:
+                                        others.append(other)
+                        except ValueError:  # TODO: tutaj trzeba dodać validację źle odczytanego znaku, który daje ?
+                            pass
+                    i += 1
+        else:
+            for _ in list_of_others:
+                valid = check_account(_)
+                if valid == '{}{}{}{}'.format(Fore.GREEN, Back.LIGHTBLACK_EX, 'VALID', Style.RESET_ALL) \
+                        and _ not in others:
+                    others.append(_)
     else:
         print('Here you have to add sth to deal with ?')
     if len(others) == 1:
@@ -108,6 +120,7 @@ def lines_on_numbers(given_example: str, valid_list_of_numbers=None):
 
     Returns:
         str: account number in readable simple form
+        list: invalid character as a list of characters to work in other fnction
     """
     given_account = reading(given_example)
     if valid_list_of_numbers is None:
@@ -176,58 +189,38 @@ def printing_details(account_nr: str):
     """Simple function needed to print all data about account in one step"""
 
     statement = 'Data from scanner: {}\nData status: {}\nOther possibilities: {}'.format(
-        account_nr, check_account(account_nr), check_possibilities(account_nr))
+        account_nr[0], check_account(account_nr[0]), check_possibilities(account_nr[0]))
     print(statement)
+
+
+def check_possible_numbers(account_to_check, valid_list_of_numbers=None):
+    if valid_list_of_numbers is None:
+        valid_list_of_numbers = num_val_list
+    possible = []
+    if len(account_to_check[1]) > 0:
+        for item_val in num_val_list:
+            x = 0
+            correct = 0
+            for item in item_val:
+                if item == account_to_check[1][x]:
+                    correct += 1
+                else:
+                    pass
+                x += 1
+                if correct == 8:
+                    possible.append(num_val_list.index(item_val))
+    else:
+        pass
+    return possible
 
 
 example = '''\
                            
-    _  _     _  _  _  _  _ 
- _| _| _||_||_ |_   ||_||_|
-  ||_  _|  | _||_|  ||_| _|'''
+ _  _  _  _  _  _  _  _  _ 
+|_||_||_||_||_||_||_||_||_|
+|_||_||_||_||_||_||_||_||_|'''
 
 
 if __name__ == '__main__':
-    # account = lines_on_numbers(example)
-    # cos_tam = lines_on_numbers(example)
-    # print(account)
-    # printing_details(account[0])
-    # print(lines_on_numbers(account, num_val_list))
-
-    # checking_account = '666666666'
-    #
-    # print(check_possibilities(checking_account))
-
-    # i = 0  # TODO: z tego musisz wykombinować jak zrobić coś takiego, że jak się dwa tylko jeden znak różni - daje jako możliwość
-    # x = 0
-    # while i < 10:
-    #     print(x)
-    #     for char in num_val_list[x]:
-    #         print(char, end='')
-    #     x += 1
-    #     print('***')
-    #     i += 1
-
-    num_check = [' ', ' ', ' ', ' ', '_', '|', ' ', ' ', '|']
-    num_4_val = [' ', ' ', ' ', '|', '_', '|', ' ', ' ', '|']
-
-    def difference (list1, list2):
-        diff = []
-        for char in list1:
-            for _ in list2:
-                wrong = 0
-                for sign in _:
-                    if char == sign:
-                        pass
-                    elif wrong >= 2:
-                        break
-                    else:
-                        wrong += 1
-                        if wrong < 2:
-                            diff += str(list2.index(_))
-        return set(diff)
-
-    y = difference(num_check, num_val_list)
-    print(y)
-
-
+    account = lines_on_numbers(example)
+    printing_details(account)
