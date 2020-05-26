@@ -191,20 +191,19 @@ def printing_details(account_nr: tuple):
     print(statement)
 
 
-def check_possible_numbers(account_to_check: tuple, valid_list_of_numbers=None):
+def check_possible_numbers(account_to_check: tuple, valid_list_of_numbers):
     """Function for checking number which was invalid
 
     Arguments:
         account_to_check (tuple): str of an account number and list of characters taken from invalid number (if it was)
+        valid_list_of_numbers (list): list with 10 tuples with symbols in proper order to represent one digit character
 
     Returns:
         possible (list): list of other possibilities based on invalid character
     """
-    if valid_list_of_numbers is None:
-        valid_list_of_numbers = num_val_list
     possible = []
     if len(account_to_check[1]) > 0:
-        for item_val in num_val_list:
+        for item_val in valid_list_of_numbers:
             x = 0
             correct = 0
             for item in item_val:
@@ -214,7 +213,7 @@ def check_possible_numbers(account_to_check: tuple, valid_list_of_numbers=None):
                     pass
                 x += 1
                 if correct == 8:
-                    possible.append(num_val_list.index(item_val))
+                    possible.append(valid_list_of_numbers.index(item_val))
     else:
         pass
     return possible
